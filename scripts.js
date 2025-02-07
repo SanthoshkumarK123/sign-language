@@ -8,8 +8,9 @@ let errorMessages = {};
 
 function convertText() {
     const inputText = document.getElementById('input-text').value.trim().toLowerCase();
-    words = inputText.split(' ');
-    currentIndex = 0;
+    
+    // Convert spaces to underscores for combined file name matching
+    let modifiedText = inputText.replace(/\s+/g, '_');
 
     const displayArea = document.getElementById('display-area');
     displayArea.innerHTML = ''; // Clear existing content
@@ -18,19 +19,50 @@ function convertText() {
     clearInterval(displayInterval);
     errorMessages = {};
 
-    if (words.length > 0) {
-        displayNextMedia();
+    // First, try to display the combined file
+    if (!displayMedia(modifiedText)) {
+        // If the combined file is not found, split into words and display each separately
+        words = inputText.split(' ');
+        currentIndex = 0;
+        displayNextWord();
     }
 }
 
-function displayNextMedia() {
+function displayNextWord() {
+    if (words.length === 0) return; // Exit if there are no words
+
+    const word = words[currentIndex];
     const displayArea = document.getElementById('display-area');
-    const text = words[currentIndex];
+
+    // Clear the display area before displaying the next word (or error)
+    displayArea.innerHTML = '';
+
+    if (!displayMedia(word)) {
+        // If the word is not found, display an error message
+        displayErrorMessage(word);
+    }
+
+
+    currentIndex = (currentIndex + 1) % words.length; // Move to the next word (circularly)
+
+    // Delay before displaying the next word
+    displayInterval = setTimeout(() => {
+      //clear previous message before displaying next message
+      if (errorMessages[word]) {
+            errorMessages[word].remove();
+            delete errorMessages[word];
+        }
+      displayNextWord();
+    }, 3000);
+}
+
+function displayMedia(fileName) {
+    const displayArea = document.getElementById('display-area');
     let foundMedia = false;
 
     for (let i = 0; i < supportedExtensions.length; i++) {
         const extension = supportedExtensions[i];
-        const mediaPath = `signs/${text}${extension}`;
+        const mediaPath = `signs/${fileName}${extension}`;
 
         if (extension === '.mp4') {
             const video = document.createElement('video');
@@ -47,7 +79,7 @@ function displayNextMedia() {
                 }
             };
 
-            video.onerror = () => handleMediaError(text);
+            video.onerror = () => handleMediaError(fileName);
         } else {
             const img = document.createElement('img');
             img.src = mediaPath;
@@ -61,28 +93,22 @@ function displayNextMedia() {
                 }
             };
 
-            img.onerror = () => handleMediaError(text);
+            img.onerror = () => handleMediaError(fileName);
         }
     }
 
-    if (!foundMedia) {
-        displayErrorMessage(text);
-    } else {
-        if (errorMessages[text]) {
-            errorMessages[text].remove();
-            delete errorMessages[text];
+    if (foundMedia) {
+        // If media is found, clear any existing error messages
+        if (errorMessages[fileName]) {
+            errorMessages[fileName].remove();
+            delete errorMessages[fileName];
         }
-    }
-
-    currentIndex++;
-
-    if (currentIndex < words.length) {
-        displayInterval = setTimeout(displayNextMedia, 3000);
+        return true; // Return true if media was found
     } else {
-        currentIndex = 0;
-        displayInterval = setTimeout(displayNextMedia, 3000);
+        return false; // Return false if media was not found
     }
 }
+
 
 function handleMediaError(text) {
     displayErrorMessage(text);
@@ -142,6 +168,14 @@ function startRecognition() {
     }
 }
 
+// Function to check if a media file exists for the given text
+function checkFileExists(fileName) {
+    return supportedExtensions.some(extension => {
+        let img = new Image();
+        img.src = `signs/${fileName}${extension}`;
+        return img.complete;
+    });
+}
 
 // Function to handle voice recognition for the translation input
 function startTranslationRecognition() {
@@ -174,13 +208,11 @@ function startTranslationRecognition() {
     }
 }
 
-
 // New function to clear the translation fields
 function clearTranslationFields() {
     document.getElementById('input-translate').value = ''; // Clear the input translation text area
     document.getElementById('output-translate').value = ''; // Clear the output translation text area
 }
-
 
 // Language Translation Using API
 async function translateText() {
@@ -202,6 +234,6 @@ async function translateText() {
         document.getElementById('output-translate').value = data[0][0][0]; // Extract translated text
     } catch (error) {
         console.error("Error in translation:", error);
-        alert("Translation failed. Google may have blocked this method.");
+        alert("Translation failed");
     }
 }
