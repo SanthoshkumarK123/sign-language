@@ -117,13 +117,7 @@ function handleMediaError(text) {
 function displayErrorMessage(text) {
     const displayArea = document.getElementById('display-area');
 
-    if (!errorMessages[text]) {
-        const errorMsg = document.createElement('p');
-        errorMsg.className = 'error-message';
-        errorMsg.textContent = `Search image not found for "${text}".`;
-        displayArea.appendChild(errorMsg);
-        errorMessages[text] = errorMsg;
-    }
+    
 }
 
 function removeImage() {
