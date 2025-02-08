@@ -39,7 +39,7 @@ function displayNextWord() {
 
     if (!displayMedia(word)) {
         // If the word is not found, display an error message
-        displayErrorMessage(word);
+        //displayErrorMessage(word); //Commented to prevent display of error message
     }
 
 
@@ -111,7 +111,7 @@ function displayMedia(fileName) {
 
 
 function handleMediaError(text) {
-    displayErrorMessage(text);
+   // displayErrorMessage(text); //Commented to prevent display of error message
 }
 
 function displayErrorMessage(text) {
