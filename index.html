@@ -12,19 +12,17 @@
 
     <h1>Sign Language to Image & Language Translator</h1>
 
-    <!-- Input box and control buttons -->
     <div class="input-section">
         <input type="text" id="input-text" placeholder="Enter text or speak">
         <button onclick="startRecognition()">🎤 Speak</button>
         <button onclick="removeImage()">Clear</button>
     </div>
 
-    <!-- Where image or sign gets displayed -->
+
     <div id="display-area"></div>
 
-    <!-- Translation section -->
     <div class="translation-container">
-        <!-- Input language and text -->
+        <!-- Input Language & Text Box -->
         <div class="translation-box">
             <label>Select Input Language:</label>
             <select id="from-language">
@@ -41,10 +39,10 @@
                 <option value="ur">Urdu</option>
             </select>
             <textarea id="input-translate" placeholder="Enter text to translate"></textarea>
-            <button onclick="startTranslationRecognition()">🎤 Speak</button>
+            <button onclick="startTranslationRecognition()">🎤 Speak</button> <!-- Voice input for translation -->
         </div>
 
-        <!-- Output language and translated text -->
+        <!-- Output Language & Text Box -->
         <div class="translation-box">
             <label>Select Output Language:</label>
             <select id="to-language">
@@ -64,32 +62,10 @@
         </div>
     </div>
 
-    <!-- Buttons to translate and clear -->
     <button class="translate-btn" onclick="translateText()">Translate</button>
     <button class="translate-btn" onclick="clearTranslationFields()">Clear Translation</button>
 
-    <!-- If you still want to show the glove message separately -->
-    <div class="glove-message-container">
-        <h2>Raw Glove Message</h2>
-        <p id="glove-message">Waiting for message...</p>
-    </div>
 
-    <!-- Script Section -->
-    <script>
-        function fetchGloveMessage() {
-            fetch("http://192.168.117.190/getCommand")  // Replace with your ESP32 IP
-                .then(response => response.text())
-                .then(command => {
-                    document.getElementById("input-text").value = command; // ✅ fill input box
-                    document.getElementById("glove-message").innerText = command; // Optional: also show raw text
-                })
-                .catch(error => console.error("Error fetching glove message:", error));
-        }
-
-        setInterval(fetchGloveMessage, 2000); // fetch every 2 seconds
-    </script>
-
-    <!-- External JS file (your own logic here) -->
     <script src="scripts.js"></script>
 
 </body>
